@@ -1,0 +1,30 @@
+Aim is to design a 5-channel arbiter and scheduler. It uses round robin for Arbitration and has a priority scheduling mechanism.
+Detailed specs are as follows:
+
+Inputs:
+1.valid[4:0]: indicates which channels have data
+2.data_in[5]: input data per channel
+3.out_ready: downstream ready signal
+
+Outputs:
+1.out_valid: indicates valid output
+2.out_channel: selected channel index
+3.out_data: corresponding data
+
+Requirements:
+1. Priority: Lower index channels have higher priority (0 is highest)
+
+2. Arbitration: If current channel remains valid, it may continue, otherwise, select next valid channel using round-robin
+
+3. Preemption: If a higher priority request appears then check if priority difference is >1, switch immediately. If priority difference =1, then perform deffered preemption.
+
+4. Backpressure:If out_ready = 0, hold the current output
+
+Hints:
+- Maintain state of the current channel
+- Use combinational logic to determine next channel
+- Ensure output reflects selected channel correctly
+
+Constraints:
+- Do not select invalid channels
+- Avoid starvation
