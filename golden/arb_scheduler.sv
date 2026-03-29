@@ -22,8 +22,8 @@ integer i;
 integer k;
 
 
+/////////Round robin helper
 
-///////////////Round robin helper
 function [2:0] rr_select;
     input [4:0] v;
     input [2:0] start;
@@ -43,55 +43,72 @@ endfunction
 
 
 
-///////////Next state logic
+///////////////Next state logic
+
 always @(*) begin
 
     next_channel = current_channel;
 
-    /* higher priority check */
-    for(i=0;i<current_channel;i=i+1)
-    begin
-        if(valid[i] && (current_channel-i>=2))
-            next_channel = i;
+    if(!out_ready) begin
+        next_channel = current_channel;
     end
+    else begin
 
-    /* round robin if current invalid */
-    if(!valid[current_channel])
-        next_channel = rr_select(valid,current_channel);
+        /////find highest priority valid channel FIRST
+        reg [2:0] best_channel;
+        best_channel = 5;  // invalid default
+
+        for(i=0;i<5;i=i+1) begin
+            if(valid[i] && (best_channel == 5))
+                best_channel = i;
+        end
+
+        ///////if higher priority exists
+        if(best_channel < current_channel) begin
+
+            if((current_channel - best_channel) >= 2)
+                next_channel = best_channel;     // immediate
+
+            else
+                next_channel = current_channel;  // deferred
+
+        end
+
+        //////if current invalid then round robin
+        else if(!valid[current_channel]) begin
+            next_channel = rr_select(valid,current_channel);
+        end
+
+    end
 
 end
 
 
-
-/////State register
+//////State register
 always @(posedge clk or negedge rst_n)
 begin
-
     if(!rst_n)
         current_channel <= 0;
-
     else if(out_ready)
         current_channel <= next_channel;
-
 end
 
 
-
-//////Output logic
+///////Output logic
 always @(*) begin
 
-    /* hold current channel */
-    out_channel = current_channel;
-
-    if(valid[current_channel])
-    begin
-        out_valid = 1;
-        out_data  = data_in[current_channel];
-    end
+    //using next_channel when ready
+    if(out_ready)
+        out_channel = next_channel;
     else
-    begin
-        /* select next valid if current disappears */
-        out_channel = rr_select(valid,current_channel);
+        out_channel = current_channel;
+
+    if(valid[out_channel]) begin
+        out_valid = 1;
+        out_data  = data_in[out_channel];
+    end
+    else begin
+        out_channel = rr_select(valid,out_channel);
         out_valid   = valid[out_channel];
         out_data    = data_in[out_channel];
     end

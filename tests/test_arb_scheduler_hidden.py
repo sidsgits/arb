@@ -247,7 +247,7 @@ def test_scheduler_hidden_runner():
 
     proj_path = Path(__file__).resolve().parent.parent
 
-    sources = [proj_path / "sources/arb_scheduler.sv"]
+    sources = [proj_path / "golden/arb_scheduler.sv"]
 
     runner = get_runner(sim)
 
