@@ -1,30 +1,57 @@
-Aim is to design a 5-channel arbiter and scheduler. It uses round robin for Arbitration and has a priority scheduling mechanism.
-Detailed specs are as follows:
+Aim is to design a 5-channel arbiter scheduler.The module selects one of five input channels and forwards its data to the output based on priority and fairness rules.
 
 Inputs:
-1.valid[4:0]: indicates which channels have data
-2.data_in[5]: input data per channel
-3.out_ready: downstream ready signal
+1.clk: clock signal (rising edge triggered)
+2.rst_n: active-low reset
+3.valid[4:0]: each bit indicates if a channel has valid data
+4.data_in[5]: array of 8-bit input data, one per channel
+5.out_ready: indicates downstream is ready to accept output
 
 Outputs:
 1.out_valid: indicates valid output
-2.out_channel: selected channel index
-3.out_data: corresponding data
+2.out_channel: index (0–4) of selected channel
+3.out_data: data corresponding to selected channel
 
-Requirements:
-1. Priority: Lower index channels have higher priority (0 is highest)
 
-2. Arbitration: If current channel remains valid, it may continue, otherwise, select next valid channel using round-robin
+The design should have following architecture requiremens:
 
-3. Preemption: If a higher priority request appears then check if priority difference is >1, switch immediately. If priority difference =1, then perform deffered preemption.
+1. State Management: Maintain a register that stores the currently selected channel. This register updates on the rising edge of clk while Reset initializes the current channel to 0
 
-4. Backpressure:If out_ready = 0, hold the current output
+2. Next Channel Computation: Use combinational logic to determine the next channel, which depends on current channel, valid inputs, priority rules and out_ready signal.
+
+3. Priority Rules:Lower index channels have higher priority (0 is highest) and at every decision point, check if a higher priority valid channel exists.
+
+4. Arbitration Behavior: If the current channel remains valid, it may continue to be selected. If the current channel becomes invalid, select another valid channel. Selection should follow a round-robin style search starting from the current channel.
+
+5. Preemption Behavior: If a higher priority channel becomes valid, compare its priority with the current channel, if if priority difference is >1, switch immediately. If priority difference =1, then perform deffered preemption.
+
+6. Backpressure Handling:If out_ready is LOW, hold the current channel and do not update the state/
+
+
+
+The design should have following output logic:
+
+- The output channel is typically the current channel
+- When transitioning, ensure correct channel is reflected at output
+- out_valid should indicate whether the selected channel has valid data
+- out_data should always correspond to the selected channel
 
 Hints:
-- Maintain state of the current channel
-- Use combinational logic to determine next channel
-- Ensure output reflects selected channel correctly
+You may use (but not necessary, if more efficient way possible use that)
+  - one sequential block (for state update)
+  - one combinational block (for next state logic)
+  - one combinational block (for output logic)
 
-Constraints:
-- Do not select invalid channels
-- Avoid starvation
+You may implement a helper function to perform round-robin selection
+
+Ensure:
+  - only valid channels are selected
+  - logic is synthesizable
+  - no unintended latches are inferred
+
+Focus on clean separation of:
+- state register
+- next-state logic
+- output logic
+
+Exact implementation details are left to you, but the design must follow the structure described above.
