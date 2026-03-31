@@ -15,25 +15,6 @@ module arb_scheduler(
     input  logic        out_ready
 );
 
-logic [2:0] current_channel;
-
-// Simple state update
-always_ff @(posedge clk or negedge rst_n) begin
-    if(!rst_n)
-        current_channel <= 0;
-    else if(out_ready) begin
-        // Basic priority selection ONLY (no RR, no preemption logic)
-        if(valid[0]) current_channel <= 0;
-        else if(valid[1]) current_channel <= 1;
-        else if(valid[2]) current_channel <= 2;
-        else if(valid[3]) current_channel <= 3;
-        else if(valid[4]) current_channel <= 4;
-    end
-end
-
-// Output logic
-assign out_channel = current_channel;
-assign out_valid   = valid[current_channel];
-assign out_data    = data_in[current_channel];
+// Implementation goes here
 
 endmodule
