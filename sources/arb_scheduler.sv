@@ -92,7 +92,6 @@ always_comb begin
         out_data  = data_in[current_channel];
     end
     else begin
-        // TODO:
         // Select next valid channel using rr_select
         out_channel = rr_select(valid, current_channel);
         out_valid   = valid[out_channel];
