@@ -1,4 +1,5 @@
-Aim is to design a 5-channel arbiter scheduler.The module selects one of five input channels and forwards its data to the output based on priority and fairness rules.
+Aim is to design a 5-channel arbiter scheduler.The module selects one of five input channels and forwards its data to the output based on priority and fairness rules. 
+The design should behave like a zero-latency arbiter, where output reflects the arbitration decision combinationally, while the state register updates on the next clock edge.
 
 Inputs:
 1.clk: clock signal (rising edge triggered)
@@ -31,8 +32,8 @@ The design should have following architecture requiremens:
 
 The design should have following output logic:
 
-- The output channel is typically the current channel
-- When transitioning, ensure correct channel is reflected at output
+- The output must reflect the next selected channel in the same cycle the decision is made. That is there must be no delay between arbitration decision and output update.
+- During any transition (preemption or round-robin switch), the newly selected channel must appear on out_channel in the same clock cycle, before the next clock edge.
 - out_valid should indicate whether the selected channel has valid data
 - out_data should always correspond to the selected channel
 
