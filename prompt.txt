@@ -24,7 +24,7 @@ The design should have following architecture requiremens:
 
 4. Arbitration Behavior: If the current channel remains valid, it may continue to be selected. If the current channel becomes invalid, select another valid channel. Selection should follow a round-robin style search starting from the current channel.
 
-5. Preemption Behavior: If a higher priority channel becomes valid, compare its priority with the current channel, if if priority difference is >1, switch immediately. If priority difference =1, then perform deffered preemption.
+5. Preemption Behavior: If a higher priority channel becomes valid, compare its priority with the current channel, if if priority difference is >1, switch immediately. If priority difference =1, then the preempt after current channel.
 
 6. Backpressure Handling:If out_ready is LOW, hold the current channel and do not update the state/
 
